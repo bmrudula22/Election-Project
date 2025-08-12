@@ -18,7 +18,7 @@ booth_data = []
 # Population density range (people per sq km)
 # In India, urban dense areas can go 5,000+ people/km²
 # Rural areas may have lower densities.
-population_density_range = (200, 10000)
+population_density_range = (2000, 80000)#(rural,urban)
 
 # -------------------------------
 # Step 2: Generate booth details
