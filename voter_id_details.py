@@ -24,5 +24,5 @@ df_voter_card = df_voters[['Voter ID', 'Name', 'Gender', 'Age']]
 # Save to CSV
 df_voter_card.to_csv("voter_card_details.csv", index=False)
 
-
+#After the pdf is generated the print will be executed
 print("Voter card CSV created with AGE extracted from DOB!")
