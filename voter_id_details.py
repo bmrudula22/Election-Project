@@ -15,7 +15,7 @@ def calculate_age(dob):
     age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
     return age
 
-# Create AGE column from DOB
+# Create AGE column from DOB(date of birth)
 df_voters['Age'] = df_voters['DOB'].apply(calculate_age)
 
 # Create voter card CSV with only required fields
