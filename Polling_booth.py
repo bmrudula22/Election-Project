@@ -4,7 +4,7 @@ import random
 # Step 1: Read Constituencies
 df_constituencies = pd.read_csv("constituencies.csv")
 
-# Step 2: Institution & locality names
+# Step 2: Institution and locality names
 institutions = [
     "Government Primary School",
     "Municipal High School",
