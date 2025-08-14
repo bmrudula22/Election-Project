@@ -23,7 +23,7 @@ def generate_voters(n=10000):
     records = []
     for i in range(n):
         gender = random.choice(genders)
-        dob = base_date - timedelta(days=random.randint(18*365, 90*365))  
+        dob = base_date - timedelta(days=random.randint(18*365, 65*365))  
         # Fixed range
         age = (base_date.date() - dob.date()).days // 365  
         # Use base_date to calculate age
