@@ -55,7 +55,7 @@ df_voters['ADDRESS'] = df_voters['POLLING_BOOTH_ID'].map(lambda x: booth_map[x][
 
 # Step 5: Select final columns
 
-df_final = df_voters[['CON_ID', 'POLLING_BOOTH_ID', 'Voter ID', 'Name', 'Age', 'Gender']]
+df_final = df_voters[['CON_ID', 'POLLING_BOOTH_ID', 'Voter ID', 'Name', 'Gender', 'Age',]]
 
 # Step 6: Save final CSV
 df_final.to_csv("voter_table.csv", index=False)
