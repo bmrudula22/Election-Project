@@ -16,7 +16,7 @@ print("Candidates contesting are:", candidates)
 
 # Step 3: Simulate voting day
 
-turnout_fraction = 0.65  # 60% turnout
+turnout_fraction = 0.65  # 65% turnout
 df_turnout = df_voters.sample(frac=turnout_fraction, random_state=42).reset_index(drop=True)
 
 poll_start = datetime.strptime("08:00:00", "%H:%M:%S") # start time
