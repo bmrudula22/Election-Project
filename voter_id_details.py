@@ -24,7 +24,7 @@ df_voter_card = df_voters[['Voter ID', 'Name', 'Gender', 'Age']]
 
 #Read CSV files
 df_booths = pd.read_csv("polling_booths.csv")  # CON_ID, POLLING_BOOTH_ID, NAME, LOCATION_LAT, LOCATION_LONG, ADDRESS
-df_voters = pd.read_csv("voter_card_details.csv")        # VOTER_ID, NAME, AGE, GENDER
+df_voters = pd.read_csv("voter_card_details.csv") # VOTER_ID, NAME, AGE, GENDER
 
 # Keep only needed booth columns
 df_booths = df_booths[['CON_ID', 'POLLING_BOOTH_ID', 'ADDRESS']]
