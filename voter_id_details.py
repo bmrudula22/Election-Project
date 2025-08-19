@@ -4,7 +4,7 @@ import random
 import math
 
 # Read the voters dataset which has DOB
-df_voters = pd.read_csv("voter_Card.csv")
+df_voters = pd.read_csv("Voter_Card.csv")
 
 # Ensure DOB is in datetime format
 df_voters['DOB'] = pd.to_datetime(df_voters['DOB'], errors='coerce')
@@ -27,7 +27,7 @@ df_booths = pd.read_csv("polling_booths.csv")  # CON_ID, POLLING_BOOTH_ID, NAME,
 df_voters = pd.read_csv("voter_card_details.csv") # VOTER_ID, NAME, AGE, GENDER
 
 # Keep only needed booth columns
-df_booths = df_booths[['CON_ID', 'POLLING_BOOTH_ID', 'ADDRESS']]
+df_booths = df_booths[['CON_ID', 'POLLING_BOOTH_ID']]
 
 
 num_voters = len(df_voters)
@@ -48,10 +48,9 @@ random.shuffle(booth_assignment_list)
 df_voters['POLLING_BOOTH_ID'] = booth_assignment_list
 
 # Map CON_ID and ADDRESS from booth
-booth_map = df_booths.set_index('POLLING_BOOTH_ID')[['CON_ID', 'ADDRESS']].to_dict(orient='index')
+booth_map = df_booths.set_index('POLLING_BOOTH_ID')[['CON_ID']].to_dict(orient='index')
 
 df_voters['CON_ID'] = df_voters['POLLING_BOOTH_ID'].map(lambda x: booth_map[x]['CON_ID'])
-df_voters['ADDRESS'] = df_voters['POLLING_BOOTH_ID'].map(lambda x: booth_map[x]['ADDRESS'])
 
 # Step 5: Select final columns
 
