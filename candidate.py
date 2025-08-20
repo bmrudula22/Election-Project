@@ -1,7 +1,9 @@
 import pandas as pd
+import numpy as np
 import random
 
 random.seed(42)
+np.random.seed(42)
 
 # Load voters dataset
 df_voters = pd.read_csv("voter_table.csv")
@@ -9,18 +11,23 @@ df_voters = pd.read_csv("voter_table.csv")
 # List of realistic parties
 parties = [
     "BJP", "INC", "AAP", "TDP", "BRS", "CPI", "CPM", 
-    "YSRCP", "DMK", "AIADMK", "SP", "BSP", "JD(U)", "Independent"
+    "YSRCP", "DMK", "SP", "BSP", "JD(U)"
 ]
 
 candidates = []
 
-# Loop through each constituency
-for con_id in df_voters['CON_ID'].unique():
-    # Get voters belonging to this constituency
-    voters_in_con = df_voters[df_voters['CON_ID'] == con_id]
+# Get all constituencies
+constituencies = df_voters['CON_ID'].unique()
+total_candidates = 30
+num_constituencies = len(constituencies)
 
-    # Decide number of candidates (between 3 and 5)
-    num_candidates = random.randint(3, 5)
+# Determine how many candidates per constituency
+base = total_candidates // num_constituencies
+remainder = total_candidates % num_constituencies
+candidates_per_con = [base + 1 if i < remainder else base for i in range(num_constituencies)]
+
+for con_id, num_candidates in zip(constituencies, candidates_per_con ):
+    voters_in_con = df_voters[df_voters['CON_ID'] == con_id].copy()
 
     # Randomly select parties without repetition
     selected_parties = random.sample(parties, num_candidates)
