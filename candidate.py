@@ -1,6 +1,8 @@
 import pandas as pd
 import random
 
+random.seed(42)
+
 # Load voters dataset
 df_voters = pd.read_csv("voter_table.csv")
 
@@ -35,6 +37,8 @@ for con_id in df_voters['CON_ID'].unique():
 
 # Create DataFrame
 df_candidates = pd.DataFrame(candidates)
+
+df_candidates = df_candidates.sort_values(by=["Constituency_ID", "Party_Name"]).reset_index(drop=True)
 
 # Save to CSV
 df_candidates.to_csv("candidates.csv", index=False)
