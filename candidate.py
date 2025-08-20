@@ -10,18 +10,31 @@ parties = [
     "YSRCP", "DMK", "AIADMK", "SP", "BSP", "JD(U)", "Independent"
 ]
 
-# Pick ~30 random candidates from voter dataset
-df_candidates = df_voters.sample(n=30, random_state=42)[['Voter ID', 'Name', 'CON_ID']]
+candidates = []
 
-# Assign random party to each candidate
-df_candidates['Party_Name'] = [random.choice(parties) for _ in range(len(df_candidates))]
+# Loop through each constituency
+for con_id in df_voters['CON_ID'].unique():
+    # Get voters belonging to this constituency
+    voters_in_con = df_voters[df_voters['CON_ID'] == con_id]
 
-# Rename columns for candidate dataset
-df_candidates = df_candidates.rename(columns={
-    'Voter ID': 'Candidate_ID',
-    'Name': 'Candidate_Name',
-    'CON_ID': 'Constituency_ID'
-})
+    # Decide number of candidates (between 3 and 5)
+    num_candidates = random.randint(3, 5)
+
+    # Randomly select parties without repetition
+    selected_parties = random.sample(parties, num_candidates)
+
+    # For each party, pick 1 random voter as candidate
+    for party in selected_parties:
+        voter = voters_in_con.sample(n=1).iloc[0]
+        candidates.append({
+            "Candidate_ID": voter["Voter ID"],
+            "Candidate_Name": voter["Name"],
+            "Constituency_ID": con_id,
+            "Party_Name": party
+        })
+
+# Create DataFrame
+df_candidates = pd.DataFrame(candidates)
 
 # Save to CSV
 df_candidates.to_csv("candidates.csv", index=False)
