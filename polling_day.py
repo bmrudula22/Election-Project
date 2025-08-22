@@ -6,13 +6,8 @@ from datetime import datetime, timedelta
 
 df_voters = pd.read_csv("voter_table.csv")  # Your single CSV
 
-
-# Step 2: Enter candidates manually
-
-num_candidates = int(input("Enter number of candidates: "))
-candidates = [input(f"Enter name of candidate {i+1}: ") for i in range(num_candidates)]
-print("Candidates contesting are:", candidates)
-
+# Step 2: Load candidates file (already has Candidate_ID, Candidate_Name, Constituency_ID, Party_Name)
+df_candidates = pd.read_csv("candidates.csv")
 
 # Step 3: Simulate voting day
 
@@ -21,23 +16,36 @@ df_turnout = df_voters.sample(frac=turnout_fraction, random_state=42).reset_inde
 
 poll_start = datetime.strptime("08:00:00", "%H:%M:%S") # start time
 poll_end = datetime.strptime("17:00:00", "%H:%M:%S")  # Polling end time
+
+
 entry_times = []
 exit_times = []
-votes = []
+candidate_votes = []
+party_voted = []
 
-for _ in range(len(df_turnout)):
+
+for _, voter in df_turnout.iterrows():
+    con_id = voter["CON_ID"]
+
+    # Get candidates for this voter's constituency
+    con_candidates = df_candidates[df_candidates["Constituency_ID"] == con_id]
+
+    # Add NOTA as an extra option
+    options = con_candidates.to_dict("records") + [{"Candidate_Name": "NOTA", "Party_Name": "NOTA"}]
+
+    # Randomly select candidate
+    choice = random.choice(options)
 
     entry = poll_start + timedelta(seconds=random.randint(0, int((poll_end - poll_start).total_seconds())))
     vote_duration = random.randint(1, 3)
     exit_time = entry + timedelta(minutes=vote_duration)
 
-    # Assign random candidate
-    candidate = random.choice(candidates)
-
-    # Append to lists
+    # Voting time simulation
+    
     entry_times.append(entry.strftime("%H:%M:%S"))
     exit_times.append(exit_time.strftime("%H:%M:%S"))
-    votes.append(candidate)
+    candidate_votes.append(choice["Candidate_Name"])
+    party_voted.append(choice["Party_Name"])
 
     # Update start_time for next voter
     start_time = exit_time
@@ -50,8 +58,9 @@ df_final = pd.DataFrame({
     "VOTER_ID": df_turnout["Voter ID"],
     "ENTRY_TIME": entry_times,
     "EXIT_TIME": exit_times,
-    "CANDIDATE_VOTED": votes
-})
+    "CANDIDATE_VOTED": candidate_votes,
+    "PARTY_VOTED" :  party_voted
+}) 
 
 # Step 5: Save final CSV
 
