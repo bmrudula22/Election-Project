@@ -1,7 +1,9 @@
 # part1_constituencies.py
 import pandas as pd
+import matplotlib.pyplot as plt
+import squarify 
 
-# Step 1: Create Constituencies Table (manual)
+#Create Constituencies Table (manual)
 constituencies = [
     {"CON_ID": 1, "NAME": "East", "AREA": 350, "POPULATION": 128000},
     {"CON_ID": 2, "NAME": "West", "AREA": 230, "POPULATION": 152000},
@@ -14,6 +16,23 @@ constituencies = [
 ]
 
 df_const = pd.DataFrame(constituencies)
-df_const.to_csv("constituencies.csv", index=False)
+df_const.to_csv("Data\\constituencies.csv", index=False)
 
-print("✅ Constituencies table created: constituencies.csv")
+# Normalize population for coloring
+norm = plt.Normalize(df_const["POPULATION"].min(), df_const["POPULATION"].max())
+colors = [plt.cm.Blues(norm(value)) for value in df_const["POPULATION"]]
+
+# Plot Treemap
+plt.figure(figsize=(12, 8))
+squarify.plot(
+    sizes=df_const["AREA"], 
+    label=df_const["NAME"], 
+    color=colors, 
+    alpha=0.8
+)
+
+plt.title("Constituency Treemap", fontsize=16, pad = 20)
+plt.axis("off")  # remove axes
+# Save treemap as PNG
+plt.savefig("treemap.png", dpi=300, bbox_inches="tight")
+plt.show()
