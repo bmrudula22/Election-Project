@@ -1,7 +1,7 @@
-# part1_constituencies.py
+
 import pandas as pd
 
-# Step 1: Create Constituencies Table (manual)
+#Create Constituencies Table (manual)
 constituencies = [
     {"CON_ID": 1, "NAME": "East", "AREA": 350, "POPULATION": 128000},
     {"CON_ID": 2, "NAME": "West", "AREA": 230, "POPULATION": 152000},
@@ -14,6 +14,6 @@ constituencies = [
 ]
 
 df_const = pd.DataFrame(constituencies)
-df_const.to_csv("constituencies.csv", index=False)
+df_const.to_csv("Data\constituencies.csv", index=False)
 
 print("✅ Constituencies table created: constituencies.csv")
