@@ -1,8 +1,12 @@
 import pandas as pd
 import random
+import numpy as np
+
+random.seed(42)
+np.random.seed(42)
 
 # Step 1: Read Constituencies
-df_constituencies = pd.read_csv("constituencies.csv")
+df_constituencies = pd.read_csv("Data\\constituencies.csv")
 
 # Step 2: Institution & locality names.
 institutions = [
@@ -69,6 +73,6 @@ df_polling_booths = pd.DataFrame(
     polling_booths,
     columns=["CON_ID", "POLLING_BOOTH_ID", "NAME", "LOCATION_LAT", "LOCATION_LONG", "ADDRESS"]
 )
-df_polling_booths.to_csv("polling_booths.csv", index=False)
+df_polling_booths.to_csv("Data\\polling_booths.csv", index=False)
 
 print("✅ Polling booths table created using estimated voters (68% of population).")
