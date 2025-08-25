@@ -6,7 +6,7 @@ random.seed(42)
 np.random.seed(42)
 
 # Load voters dataset
-df_voters = pd.read_csv("voter_table.csv")
+df_voters = pd.read_csv("Data\\voter_table.csv")
 
 # List of realistic parties
 parties = [
@@ -48,6 +48,6 @@ df_candidates = pd.DataFrame(candidates)
 df_candidates = df_candidates.sort_values(by=["Constituency_ID", "Party_Name"]).reset_index(drop=True)
 
 # Save to CSV
-df_candidates.to_csv("candidates.csv", index=False)
+df_candidates.to_csv("Data\\candidates.csv", index=False)
 
 print("✅ Candidates dataset created successfully with 30 realistic candidates")

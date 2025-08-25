@@ -2,6 +2,10 @@ import pandas as pd
 from datetime import datetime
 import random
 import math
+import numpy as np
+
+random.seed(42)
+np.random.seed(42)
 
 # Read the voters dataset which has DOB
 df_voters = pd.read_csv("Data\\Voter_Card.csv")
