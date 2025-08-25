@@ -1,10 +1,14 @@
 import pandas as pd
 from datetime import datetime
 import random
+import numpy as np
 import math
 
+random.seed(42)
+np.random.seed(42)
+
 # Read the voters dataset which has DOB
-df_voters = pd.read_csv("Voter_Card.csv")
+df_voters = pd.read_csv("Data\\Voter_Card.csv")
 
 # Ensure DOB is in datetime format
 df_voters['DOB'] = pd.to_datetime(df_voters['DOB'], errors='coerce')
@@ -23,8 +27,8 @@ df_voter_card = df_voters[['Voter ID', 'Name', 'Gender', 'Age']]
 
 
 #Read CSV files
-df_booths = pd.read_csv("polling_booths.csv")  # CON_ID, POLLING_BOOTH_ID, NAME, LOCATION_LAT, LOCATION_LONG, ADDRESS
-df_voters = pd.read_csv("voter_card_details.csv") # VOTER_ID, NAME, AGE, GENDER
+df_booths = pd.read_csv("Data\\polling_booths.csv")  # CON_ID, POLLING_BOOTH_ID, NAME, LOCATION_LAT, LOCATION_LONG, ADDRESS
+df_voters = pd.read_csv("Data\\voter_card_details.csv") # VOTER_ID, NAME, AGE, GENDER
 
 # Keep only needed booth columns
 df_booths = df_booths[['CON_ID', 'POLLING_BOOTH_ID']]
@@ -57,6 +61,6 @@ df_voters['CON_ID'] = df_voters['POLLING_BOOTH_ID'].map(lambda x: booth_map[x]['
 df_final = df_voters[['CON_ID', 'POLLING_BOOTH_ID', 'Voter ID', 'Name', 'Gender', 'Age',]]
 
 # Step 6: Save final CSV
-df_final.to_csv("voter_table.csv", index=False)
+df_final.to_csv("Data\\voter_table.csv", index=False)
 
 print("✅ Voter table created successfully ")

@@ -1,10 +1,14 @@
 import pandas as pd
 import random
+import numpy as np
 
-# Step 1: Read Constituencies
-df_constituencies = pd.read_csv("constituencies.csv")
+random.seed(42)
+np.random.seed(42)
 
-# Step 2: Institution & locality names.
+#Read Constituencies
+df_constituencies = pd.read_csv("Data\\constituencies.csv")
+
+#Institution & locality names.
 institutions = [
     "Government Primary School",
     "Municipal High School",
@@ -24,7 +28,7 @@ localities = [
     "School Area", "Hospital Road"
 ]
 
-# Step 3: Generate booths
+#Generate booths
 polling_booths = [] 
 #polling_booths will collect each booth as a list (later converted to a DataFrame).
 booth_id_counter = 1
@@ -64,11 +68,11 @@ for _, row in df_constituencies.iterrows():
         
         booth_id_counter += 1
 
-# Step 4: Save
+#Save
 df_polling_booths = pd.DataFrame(
     polling_booths,
     columns=["CON_ID", "POLLING_BOOTH_ID", "NAME", "LOCATION_LAT", "LOCATION_LONG", "ADDRESS"]
 )
-df_polling_booths.to_csv("polling_booths.csv", index=False)
+df_polling_booths.to_csv("Data\\polling_booths.csv", index=False)
 
 print("✅ Polling booths table created using estimated voters (68% of population).")
