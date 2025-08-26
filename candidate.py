@@ -6,7 +6,7 @@ random.seed(42)
 np.random.seed(42)
 
 # Load voters dataset
-df_voters = pd.read_csv("Data\\voter_table.csv")
+df_voters = pd.read_csv("Data\\voter_table.xyz")
 
 # List of realistic parties
 parties = [
