@@ -1,6 +1,8 @@
 import pandas as pd
 import random
 import numpy as np
+import matplotlib.pyplot as plt
+import squarify
 
 random.seed(42)
 np.random.seed(42)
@@ -76,3 +78,38 @@ df_polling_booths = pd.DataFrame(
 df_polling_booths.to_csv("Data\\polling_booths.csv", index=False)
 
 print("✅ Polling booths table created using estimated voters (68% of population).")
+
+# Load your polling booths file
+booths = pd.read_csv("Data\\polling_booths.csv")
+
+# Count booths per constituency
+constituency_counts = booths.groupby("CON_ID")["POLLING_BOOTH_ID"].count().reset_index()
+constituency_counts.rename(columns={"POLLING_BOOTH_ID": "NUM_BOOTHS"}, inplace=True)
+
+# Sizes for treemap
+sizes = constituency_counts["NUM_BOOTHS"].values
+labels = [f"Con {cid}\n({cnt} booths)" for cid, cnt in zip(constituency_counts["CON_ID"], constituency_counts["NUM_BOOTHS"])]
+
+# Create treemap
+fig, ax = plt.subplots(figsize=(14, 8))
+rects = squarify.normalize_sizes(sizes, 100, 100)
+rects = squarify.squarify(rects, 0, 0, 100, 100)
+
+for rect, (cid, cnt) in zip(rects, zip(constituency_counts["CON_ID"], constituency_counts["NUM_BOOTHS"])):
+    x, y, w, h = rect['x'], rect['y'], rect['dx'], rect['dy']
+    ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=np.random.rand(3,), alpha=0.5))
+    ax.text(x + w/2, y + h/2, f"{cid}", ha="center", va="center", fontsize=8)
+
+    # Scatter polling booths as black dots inside
+    booths_in_con = booths[booths["CON_ID"] == cid]
+    n_booths = len(booths_in_con)
+    xs = np.random.uniform(x, x + w, n_booths)
+    ys = np.random.uniform(y, y + h, n_booths)
+    ax.scatter(xs, ys, c="black", s=2)
+
+ax.set_xlim(0, 100)
+ax.set_ylim(0, 100)
+ax.axis("off")
+plt.savefig("treemap_polling_booth.png", dpi=300, bbox_inches="tight")
+plt.title("Treemap of Constituencies with Polling Booths", fontsize=14, pad=20)
+plt.show()
