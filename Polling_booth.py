@@ -3,6 +3,8 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 import squarify
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 
 random.seed(42)
 np.random.seed(42)
@@ -77,7 +79,7 @@ df_polling_booths = pd.DataFrame(
 )
 df_polling_booths.to_csv("Data\\polling_booths.csv", index=False)
 
-print("✅ Polling booths table created using estimated voters (68% of population).")
+print(" Polling booths table created using estimated voters (68% of population).")
 
 # Load your polling booths file
 booths = pd.read_csv("Data\\polling_booths.csv")
@@ -92,13 +94,18 @@ labels = [f"Con {cid}\n({cnt} booths)" for cid, cnt in zip(constituency_counts["
 
 # Create treemap
 fig, ax = plt.subplots(figsize=(14, 8))
+
+# Normalize booth counts to map them into a colormap
+norm = mcolors.Normalize(vmin=min(sizes), vmax=max(sizes))
+cmap = cm.Blues   # shades of blue (like your screenshot)
 rects = squarify.normalize_sizes(sizes, 100, 100)
 rects = squarify.squarify(rects, 0, 0, 100, 100)
 
 for rect, (cid, cnt) in zip(rects, zip(constituency_counts["CON_ID"], constituency_counts["NUM_BOOTHS"])):
     x, y, w, h = rect['x'], rect['y'], rect['dx'], rect['dy']
-    ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=np.random.rand(3,), alpha=0.5))
-    ax.text(x + w/2, y + h/2, f"{cid}", ha="center", va="center", fontsize=8)
+    color = cmap(norm(cnt))   # darker shade if more booths
+    ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=color, linewidth=2))
+    ax.text(x + w/2, y + h/2, f"{cid}", ha="center", va="center", fontsize=8,  color="black")
 
     # Scatter polling booths as black dots inside
     booths_in_con = booths[booths["CON_ID"] == cid]
