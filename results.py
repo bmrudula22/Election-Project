@@ -71,6 +71,20 @@ else:
     
     if current_coalition_seats >= majority:
         print(f"✅ The most likely coalition is {largest_party} + {', '.join(allies)}.")
-        print(f"Total seats: {current_coalition_seats} (a majority of {majority}).")
+        coalition_name = f"The {largest_party} Coalition"
+        
+        # Create a new party_wins entry for the coalition
+        coalition_parties = [largest_party] + allies
+        coalition_total_seats = sum(party_wins.loc[p] for p in coalition_parties)
+        
+        # Remove the individual parties and add the new coalition
+        party_wins_final = party_wins.drop(coalition_parties)
+        party_wins_final[coalition_name] = coalition_total_seats
+        
+        print("\n=== Final Winner: Coalition Government! ===\n")
+        print(party_wins_final.reset_index(name="Seats Won").to_string(index=False))
+        
+        # You can also add code to re-plot the pie chart here
+        # to show the coalition as a single entity
     else:
         print("❌ A coalition could not be formed to reach a majority.")
