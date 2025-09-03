@@ -17,14 +17,8 @@ results = (
 # Find candidate with maximum votes in each constituency
 
 def party_winner(group):
-    max_votes = group["votes"].max()
-    top_candidates = group[group["votes"] == max_votes]
-
-    if len(top_candidates) > 1:
-        print(f"Tie in {group['CON_ID'].iloc[0]}! Deciding by lottery...")
-        return top_candidates.sample(1)  # random pick like real election
-    else:
-        return top_candidates
+    winner_row = group.loc[group["votes"].idxmax()]
+    return winner_row
 
 winners = results.groupby("CON_ID", group_keys=False).apply(party_winner)
 # Constituency → Winning Candidate
@@ -48,17 +42,35 @@ plt.show()
 total_seats = len(winners)# should be 8
 majority = total_seats // 2 + 1          # 5 seats needed for majority
 
-winner_party = None
-for party, seats in party_wins.items():
-    if seats >= majority:
-        winner_party = party
-        break
-
-if winner_party:
-    print(f"The party that can form government is: {winner_party}")
-else:
-    print("No single party has majority (Hung Assembly).")
-    
-summary_df = winners.groupby("PARTY_VOTED").size().reset_index(name="Seats Won")
 print("\n=== Party-wise Seat Summary ===\n")
-print(summary_df.to_string(index=False))
+print(party_wins.reset_index(name='Seats Won').to_string(index=False))
+
+# Check for a single-party majority
+largest_party = party_wins.idxmax()
+largest_seats = party_wins.max()
+
+if largest_seats >= majority:
+    print(f"\n🎉 The winner is {largest_party} with {largest_seats} seats!")
+    print(f"They have a clear majority of {majority} seats.")
+else:
+    print("\n❌ No single party has a majority. Hung Assembly!")
+    
+    # Building a coalition
+    print("\n🤝 Forming a coalition...")
+    
+    # Sort parties by seats won, excluding the largest one
+    coalition_partners = party_wins.drop(largest_party).sort_values(ascending=False)
+    
+    current_coalition_seats = largest_seats
+    allies = []
+    
+    for party, seats in coalition_partners.items():
+        if current_coalition_seats < majority:
+            allies.append(party)
+            current_coalition_seats += seats
+    
+    if current_coalition_seats >= majority:
+        print(f"✅ The most likely coalition is {largest_party} + {', '.join(allies)}.")
+        print(f"Total seats: {current_coalition_seats} (a majority of {majority}).")
+    else:
+        print("❌ A coalition could not be formed to reach a majority.")
