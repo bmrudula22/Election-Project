@@ -1,6 +1,10 @@
 import pandas as pd
 import random
 import numpy as np
+import matplotlib.pyplot as plt
+import squarify
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 
 random.seed(42)
 np.random.seed(42)
@@ -57,12 +61,16 @@ for _, row in df_constituencies.iterrows():
         booth_name = f"{institution_name}, {locality_name} - Booth No. {i+1}" #→ numbering resets per constituency (1..N).
         address = f"{institution_name}, {locality_name}, {row['NAME']} Constituency"
         
+        # Random LAT/LON inside rectangle
+        lat =round( random.uniform(row["LAT_MIN"], row["LAT_MAX"]), 6)
+        lon = round(random.uniform(row["LON_MIN"], row["LON_MAX"]),6)
+        
         polling_booths.append([
             row["CON_ID"],
             booth_id_counter,
             booth_name,
-            round(random.uniform(12.0, 28.0), 6),#random latitude between 12° and 28° (roughly India).
-            round(random.uniform(72.0, 88.0), 6), #random longitude between 72° and 88°.
+            lat,
+            lon,
             address
         ])
         
@@ -71,8 +79,55 @@ for _, row in df_constituencies.iterrows():
 # Step 4: Save
 df_polling_booths = pd.DataFrame(
     polling_booths,
-    columns=["CON_ID", "POLLING_BOOTH_ID", "NAME", "LOCATION_LAT", "LOCATION_LONG", "ADDRESS"]
+    columns=["CON_ID", "POLLING_BOOTH_ID", "NAME", "LAT", "LON", "ADDRESS"]
 )
 df_polling_booths.to_csv("Data\\polling_booths.csv", index=False)
 
-print("✅ Polling booths table created using estimated voters (68% of population).")
+print(" Polling booths table created using estimated voters (68% of population).")
+
+# Load your polling booths file
+booths = pd.read_csv("Data\\polling_booths.csv")
+
+# Count booths per constituency
+constituency_counts = booths.groupby("CON_ID")["POLLING_BOOTH_ID"].count().reset_index()
+constituency_counts.rename(columns={"POLLING_BOOTH_ID": "NUM_BOOTHS"}, inplace=True)
+
+# Sizes for treemap
+sizes = constituency_counts["NUM_BOOTHS"].values
+labels = [f"Con {cid}\n({cnt} booths)" for cid, cnt in zip(constituency_counts["CON_ID"], constituency_counts["NUM_BOOTHS"])]
+
+# Create treemap
+fig, ax = plt.subplots(figsize=(14, 8))
+
+# Normalize booth counts to map them into a colormap
+norm = mcolors.Normalize(vmin=min(sizes), vmax=max(sizes))
+cmap = cm.Blues   # shades of blue (like your screenshot)
+rects = squarify.normalize_sizes(sizes, 100, 100)
+rects = squarify.squarify(rects, 0, 0, 100, 100)
+
+for rect, (cid, cnt) in zip(rects, zip(constituency_counts["CON_ID"], constituency_counts["NUM_BOOTHS"])):
+    x, y, w, h = rect['x'], rect['y'], rect['dx'], rect['dy']
+    color = cmap(norm(cnt))   # darker shade if more booths
+    ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=color, linewidth=2))
+    ax.text(x + w/2, y + h/2, f"{cid}", ha="center", va="center", fontsize=8,  color="black")
+
+    # Get constituency LAT/LON
+    con_row = df_constituencies[df_constituencies["CON_ID"] == cid].iloc[0]
+    lat_min, lat_max = con_row["LAT_MIN"], con_row["LAT_MAX"]
+    lon_min, lon_max = con_row["LON_MIN"], con_row["LON_MAX"]
+    
+    # Scatter polling booths as black dots inside
+    booths_in_con = booths[booths["CON_ID"] == cid]
+    xs = x + ((booths_in_con["LON"] - lon_min) / (lon_max - lon_min)) * w
+    ys = y + ((booths_in_con["LAT"] - lat_min) / (lat_max - lat_min)) * h
+    ax.scatter(xs, ys, c="black", s=5)
+     
+    # Plot constituency LAT/LON as red dot (also at rectangle center)
+    ax.scatter(x + w/2, y + h/2, c="red", s=30, marker='o')
+
+ax.set_xlim(0, 100)
+ax.set_ylim(0, 100)
+ax.axis("off")
+plt.savefig("treemap_polling_booth.png", dpi=300, bbox_inches="tight")
+plt.title("Treemap of Constituencies with Polling Booths", fontsize=14, pad=20)
+plt.show()
