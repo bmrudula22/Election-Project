@@ -61,9 +61,9 @@ for _, row in df_constituencies.iterrows():
         booth_name = f"{institution_name}, {locality_name} - Booth No. {i+1}" #→ numbering resets per constituency (1..N).
         address = f"{institution_name}, {locality_name}, {row['NAME']} Constituency"
         
-        # Random LAT/LON inside rectangle
-        lat =round( random.uniform(row["LAT_MIN"], row["LAT_MAX"]), 6)
-        lon = round(random.uniform(row["LON_MIN"], row["LON_MAX"]),6)
+        # Random "LAT/LON" inside treemap rectangle (using x,y,width,height)
+        lat = round(random.uniform(row["y"], row["y"] + row["HEIGHT"]), 6)
+        lon = round(random.uniform(row["x"], row["x"] + row["WIDTH"]), 6)
         
         polling_booths.append([
             row["CON_ID"],
@@ -85,8 +85,7 @@ df_polling_booths.to_csv("Data\\polling_booths.csv", index=False)
 
 print(" Polling booths table created using estimated voters (68% of population).")
 
-# Load your polling booths file
-booths = pd.read_csv("Data\\polling_booths.csv")
+booths = df_polling_booths.copy()
 
 # Count booths per constituency
 constituency_counts = booths.groupby("CON_ID")["POLLING_BOOTH_ID"].count().reset_index()
@@ -111,18 +110,17 @@ for rect, (cid, cnt) in zip(rects, zip(constituency_counts["CON_ID"], constituen
     ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=color, linewidth=2))
     ax.text(x + w/2, y + h/2, f"{cid}", ha="center", va="center", fontsize=8,  color="black")
 
-    # Get constituency LAT/LON
-    con_row = df_constituencies[df_constituencies["CON_ID"] == cid].iloc[0]
-    lat_min, lat_max = con_row["LAT_MIN"], con_row["LAT_MAX"]
-    lon_min, lon_max = con_row["LON_MIN"], con_row["LON_MAX"]
-    
-    # Scatter polling booths as black dots inside
+    # Scatter polling booths inside the same rectangle coords
     booths_in_con = booths[booths["CON_ID"] == cid]
-    xs = x + ((booths_in_con["LON"] - lon_min) / (lon_max - lon_min)) * w
-    ys = y + ((booths_in_con["LAT"] - lat_min) / (lat_max - lat_min)) * h
+    
+    # ⚠️ Use THIS constituency’s bounding box from df_constituencies
+    con_row = df_constituencies[df_constituencies["CON_ID"] == cid].iloc[0]
+    
+    xs = np.interp(booths_in_con["LON"], (row["x"], row["x"] + row["WIDTH"]), (x, x + w))
+    ys = np.interp(booths_in_con["LAT"], (row["y"], row["y"] + row["HEIGHT"]), (y, y + h))
     ax.scatter(xs, ys, c="black", s=5)
-     
-    # Plot constituency LAT/LON as red dot (also at rectangle center)
+    
+    # Plot constituency center as red dot
     ax.scatter(x + w/2, y + h/2, c="red", s=30, marker='o')
 
 ax.set_xlim(0, 100)
