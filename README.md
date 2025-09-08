@@ -64,7 +64,7 @@ cd Election-Project
 
 ##### 2️⃣ Install Dependencies
 
-pip install requirements.txt
+pip install -r requirements.txt
 
 ##### 3️⃣ Generate Datasets
 
