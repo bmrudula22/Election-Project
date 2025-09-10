@@ -1,6 +1,8 @@
 # part1_constituencies.py
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import squarify
 import numpy as np 
 
@@ -17,13 +19,12 @@ constituencies = [
 ]
 
 df_const = pd.DataFrame(constituencies)
-
 rects = squarify.squarify(
     sizes=df_const["AREA"],
     x=0,
     y=0,
-    dx=12,   # width of plotting area
-    dy=8     # height of plotting area
+    dx=100,   # width of plotting area
+    dy=100    # height of plotting area
 )
 
 # Step 2: Add rectangle data (x, y, dx, dy) to dataframe
@@ -41,6 +42,7 @@ df_const.to_csv("Data\\constituencies.csv", index=False)
 norm = plt.Normalize(df_const["POPULATION"].min(), df_const["POPULATION"].max())
 colors = [plt.cm.Blues(norm(value)) for value in df_const["POPULATION"]]
 
+
 # Plot Treemap
 plt.figure(figsize=(12, 8))
 squarify.plot(
@@ -48,8 +50,8 @@ squarify.plot(
     label=df_const["NAME"], 
     color=colors, 
     alpha=0.8
-)  
-
+    ) 
+plt.gca().set_aspect('equal', adjustable='box')
 plt.title("Constituency Treemap", fontsize=16, pad = 20)
 plt.axis("off")  # remove axes
 # Save treemap as PNG

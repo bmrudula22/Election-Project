@@ -9,10 +9,25 @@ import matplotlib.colors as mcolors
 random.seed(42)
 np.random.seed(42)
 
-# Step 1: Read Constituencies
+# Read Constituencies
 df_constituencies = pd.read_csv("Data\\constituencies.csv")
 
-# Step 2: Institution & locality names.
+# Create treemap layout using squarify
+sizes = df_constituencies["AREA"].values
+normed_sizes = squarify.normalize_sizes(sizes, 100, 100)
+rects = squarify.squarify(normed_sizes, 0, 0, 100, 100)
+
+
+# Update constituency dataframe with rectangle info
+for i, r in enumerate(rects):
+    df_constituencies.loc[i, "x"] = r["x"]
+    df_constituencies.loc[i, "y"] = r["y"]
+    df_constituencies.loc[i, "WIDTH"] = r["dx"]
+    df_constituencies.loc[i, "HEIGHT"] = r["dy"]
+
+
+
+# Institution & locality names.
 institutions = [
     "Government Primary School",
     "Municipal High School",
@@ -46,7 +61,7 @@ for _, row in df_constituencies.iterrows():
     # About 68% of India’s population are eligible voters (18+).
     estimated_voters = int(row["POPULATION"] * 0.68)  # 68% of population as voters 
     booths_by_area = row["AREA"]                     # 1 per sq km
-    booths_by_voters = estimated_voters // 1000      # 1 per 1000 voters
+    booths_by_voters = estimated_voters // 1000 # 1 per 1000 voters
     
     
     #booths_by_area → Minimum booths needed based on area.
@@ -85,10 +100,9 @@ df_polling_booths.to_csv("Data\\polling_booths.csv", index=False)
 
 print(" Polling booths table created using estimated voters (68% of population).")
 
-booths = df_polling_booths.copy()
-
+# Plot treemap with booths
 # Count booths per constituency 
-constituency_counts = booths.groupby("CON_ID")["POLLING_BOOTH_ID"].count().reset_index() 
+constituency_counts = df_polling_booths.groupby("CON_ID")["POLLING_BOOTH_ID"].count().reset_index() 
 constituency_counts.rename(columns={"POLLING_BOOTH_ID": "NUM_BOOTHS"}, inplace=True) 
 
 # Sizes for treemap 
@@ -99,7 +113,8 @@ norm = mcolors.Normalize(vmin=min(sizes), vmax=max(sizes))
 cmap = cm.Blues 
 
 # Create treemap 
-fig, ax = plt.subplots(figsize=(14, 8)) 
+fig, ax = plt.subplots(figsize=(12, 8)) 
+
 for _, row in df_constituencies.iterrows(): 
     cid = row["CON_ID"] 
     x, y, w, h = row["x"], row["y"], row["WIDTH"], row["HEIGHT"] 
@@ -107,21 +122,21 @@ for _, row in df_constituencies.iterrows():
     color = cmap(norm(num_booths)) 
     
     
-    ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=color, linewidth=2)) 
-    ax.text(x + w/2, y + h/2, f"{cid}", ha="center", va="center", fontsize=8, color="black") 
+    # Constituency rectangle
+    ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=color))
     
+    # Constituency label
+    ax.text(x + w/2, y + h/2, f"{row['NAME']}", ha="center", va="center", fontsize=9, color="black")
     
-    # Scatter booths using their X_POS/Y_POS 
-    booths_in_con = df_polling_booths[df_polling_booths["CON_ID"] == cid] 
-    ax.scatter(booths_in_con["LAT"], booths_in_con["LON"], c="black", s=5) 
-    
-    # Plot constituency center as red dot 
-    ax.scatter(x + w/2, y + h/2, c="red", s=30, marker='o') 
+    # Booths (black dots)
+    booths_in_con = df_polling_booths[df_polling_booths["CON_ID"] == cid]
+    ax.scatter(booths_in_con["LAT"], booths_in_con["LON"], c="black", s=5, alpha=0.8)
     
 
 
 ax.set_xlim(0, 100)
 ax.set_ylim(0, 100)
+ax.set_aspect('equal', adjustable='box')
 ax.axis("off")
 plt.savefig("treemap_polling_booth.png", dpi=300, bbox_inches="tight")
 plt.title("Treemap of Constituencies with Polling Booths", fontsize=14, pad=20)
