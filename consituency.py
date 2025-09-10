@@ -47,7 +47,7 @@ squarify.plot(
     sizes=df_const["AREA"], 
     label=df_const["NAME"], 
     color=colors, 
-    alpha=0.8,
+    alpha=0.8
 )  
 
 plt.title("Constituency Treemap", fontsize=16, pad = 20)

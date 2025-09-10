@@ -61,16 +61,16 @@ for _, row in df_constituencies.iterrows():
         booth_name = f"{institution_name}, {locality_name} - Booth No. {i+1}" #→ numbering resets per constituency (1..N).
         address = f"{institution_name}, {locality_name}, {row['NAME']} Constituency"
         
-        # Random "LAT/LON" inside treemap rectangle (using x,y,width,height)
-        lat = round(random.uniform(row["y"], row["y"] + row["HEIGHT"]), 6)
-        lon = round(random.uniform(row["x"], row["x"] + row["WIDTH"]), 6)
+        # Place booth randomly inside constituency rectangle using x, y, WIDTH, HEIGHT
+        LAT = row["x"] + random.random() * row["WIDTH"]
+        LON = row["y"] + random.random() * row["HEIGHT"]
         
         polling_booths.append([
             row["CON_ID"],
             booth_id_counter,
             booth_name,
-            lat,
-            lon,
+            LAT,
+            LON,
             address
         ])
         
@@ -87,41 +87,38 @@ print(" Polling booths table created using estimated voters (68% of population).
 
 booths = df_polling_booths.copy()
 
-# Count booths per constituency
-constituency_counts = booths.groupby("CON_ID")["POLLING_BOOTH_ID"].count().reset_index()
-constituency_counts.rename(columns={"POLLING_BOOTH_ID": "NUM_BOOTHS"}, inplace=True)
+# Count booths per constituency 
+constituency_counts = booths.groupby("CON_ID")["POLLING_BOOTH_ID"].count().reset_index() 
+constituency_counts.rename(columns={"POLLING_BOOTH_ID": "NUM_BOOTHS"}, inplace=True) 
 
-# Sizes for treemap
-sizes = constituency_counts["NUM_BOOTHS"].values
-labels = [f"Con {cid}\n({cnt} booths)" for cid, cnt in zip(constituency_counts["CON_ID"], constituency_counts["NUM_BOOTHS"])]
+# Sizes for treemap 
+sizes = constituency_counts["NUM_BOOTHS"].values  
 
-# Create treemap
-fig, ax = plt.subplots(figsize=(14, 8))
+#Colormap 
+norm = mcolors.Normalize(vmin=min(sizes), vmax=max(sizes)) 
+cmap = cm.Blues 
 
-# Normalize booth counts to map them into a colormap
-norm = mcolors.Normalize(vmin=min(sizes), vmax=max(sizes))
-cmap = cm.Blues   # shades of blue (like your screenshot)
-rects = squarify.normalize_sizes(sizes, 100, 100)
-rects = squarify.squarify(rects, 0, 0, 100, 100)
-
-for rect, (cid, cnt) in zip(rects, zip(constituency_counts["CON_ID"], constituency_counts["NUM_BOOTHS"])):
-    x, y, w, h = rect['x'], rect['y'], rect['dx'], rect['dy']
-    color = cmap(norm(cnt))   # darker shade if more booths
-    ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=color, linewidth=2))
-    ax.text(x + w/2, y + h/2, f"{cid}", ha="center", va="center", fontsize=8,  color="black")
-
-    # Scatter polling booths inside the same rectangle coords
-    booths_in_con = booths[booths["CON_ID"] == cid]
+# Create treemap 
+fig, ax = plt.subplots(figsize=(14, 8)) 
+for _, row in df_constituencies.iterrows(): 
+    cid = row["CON_ID"] 
+    x, y, w, h = row["x"], row["y"], row["WIDTH"], row["HEIGHT"] 
+    num_booths = constituency_counts[constituency_counts["CON_ID"]==cid]["NUM_BOOTHS"].values[0] 
+    color = cmap(norm(num_booths)) 
     
-    # ⚠️ Use THIS constituency’s bounding box from df_constituencies
-    con_row = df_constituencies[df_constituencies["CON_ID"] == cid].iloc[0]
     
-    xs = np.interp(booths_in_con["LON"], (row["x"], row["x"] + row["WIDTH"]), (x, x + w))
-    ys = np.interp(booths_in_con["LAT"], (row["y"], row["y"] + row["HEIGHT"]), (y, y + h))
-    ax.scatter(xs, ys, c="black", s=5)
+    ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=color, linewidth=2)) 
+    ax.text(x + w/2, y + h/2, f"{cid}", ha="center", va="center", fontsize=8, color="black") 
     
-    # Plot constituency center as red dot
-    ax.scatter(x + w/2, y + h/2, c="red", s=30, marker='o')
+    
+    # Scatter booths using their X_POS/Y_POS 
+    booths_in_con = df_polling_booths[df_polling_booths["CON_ID"] == cid] 
+    ax.scatter(booths_in_con["LAT"], booths_in_con["LON"], c="black", s=5) 
+    
+    # Plot constituency center as red dot 
+    ax.scatter(x + w/2, y + h/2, c="red", s=30, marker='o') 
+    
+
 
 ax.set_xlim(0, 100)
 ax.set_ylim(0, 100)
