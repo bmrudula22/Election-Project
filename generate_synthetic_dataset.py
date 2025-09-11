@@ -1,4 +1,4 @@
-from constituency import get_constituencies   # or generate_constituencies if you renamed it
+from constituency import get_constituencies   
 from voter import generate_voters
 from candidate import generate_candidates
 from Polling_booth import generate_polling_booths

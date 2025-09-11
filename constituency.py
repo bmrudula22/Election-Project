@@ -48,7 +48,7 @@ def get_constituencies(save_csv=True, plot=True):
     ax.set_aspect("equal", adjustable="box")
     ax.axis("off")
     plt.title("Constituency Treemap (Population Colored)", fontsize=14, pad=20)
-    plt.savefig("treemap_constituencies.png", dpi=300, bbox_inches="tight")
+    plt.savefig("treemap.png", dpi=300, bbox_inches="tight")
     plt.show()
 
     print("✅ Constituencies treemap saved.")
