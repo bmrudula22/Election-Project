@@ -1,14 +1,19 @@
 import pandas as pd
 import random
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
+from consituency import get_constituencies
 
 random.seed(42)
 np.random.seed(42)
 
-# Step 1: Read Constituencies
-df_constituencies = pd.read_csv("Data\\constituencies.csv")
+# Get constituencies with rectangles
+df_constituencies = get_constituencies()
 
-# Step 2: Institution & locality names.
+
+# Institution & locality names.
 institutions = [
     "Government Primary School",
     "Municipal High School",
@@ -42,7 +47,7 @@ for _, row in df_constituencies.iterrows():
     # About 68% of India’s population are eligible voters (18+).
     estimated_voters = int(row["POPULATION"] * 0.68)  # 68% of population as voters 
     booths_by_area = row["AREA"]                     # 1 per sq km
-    booths_by_voters = estimated_voters // 1000      # 1 per 1000 voters
+    booths_by_voters = estimated_voters // 1000 # 1 per 1000 voters
     
     
     #booths_by_area → Minimum booths needed based on area.
@@ -57,12 +62,16 @@ for _, row in df_constituencies.iterrows():
         booth_name = f"{institution_name}, {locality_name} - Booth No. {i+1}" #→ numbering resets per constituency (1..N).
         address = f"{institution_name}, {locality_name}, {row['NAME']} Constituency"
         
+        # Place booth randomly inside constituency rectangle using x, y, WIDTH, HEIGHT
+        LAT = row["x"] + random.random() * row["WIDTH"]
+        LON = row["y"] + random.random() * row["HEIGHT"]
+        
         polling_booths.append([
             row["CON_ID"],
             booth_id_counter,
             booth_name,
-            round(random.uniform(12.0, 28.0), 6),#random latitude between 12° and 28° (roughly India).
-            round(random.uniform(72.0, 88.0), 6), #random longitude between 72° and 88°.
+            LAT,
+            LON,
             address
         ])
         
@@ -71,8 +80,48 @@ for _, row in df_constituencies.iterrows():
 # Step 4: Save
 df_polling_booths = pd.DataFrame(
     polling_booths,
-    columns=["CON_ID", "POLLING_BOOTH_ID", "NAME", "LOCATION_LAT", "LOCATION_LONG", "ADDRESS"]
+    columns=["CON_ID", "POLLING_BOOTH_ID", "NAME", "LAT", "LON", "ADDRESS"]
 )
 df_polling_booths.to_csv("Data\\polling_booths.csv", index=False)
 
-print("✅ Polling booths table created using estimated voters (68% of population).")
+print(" Polling booths table created and saved")
+
+# Plot treemap with booths
+constituency_counts = (
+    df_polling_booths.groupby("CON_ID")["POLLING_BOOTH_ID"]
+    .count()
+    .reset_index()
+    .rename(columns={"POLLING_BOOTH_ID": "NUM_BOOTHS"})
+)
+
+# Colormap based on booth count
+norm = mcolors.Normalize(vmin=df_constituencies["POPULATION"].min(),
+                         vmax=df_constituencies["POPULATION"].max())
+cmap = cm.Blues
+
+# Plot
+fig, ax = plt.subplots(figsize=(12, 8))
+for _, row in df_constituencies.iterrows():
+    x, y, w, h = row["x"], row["y"], row["WIDTH"], row["HEIGHT"]
+    color = cmap(norm(row["POPULATION"]))  # ✅ population-based color
+
+
+
+    # Constituency rectangle
+    ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=color))
+
+    # Constituency label
+    ax.text(x + w/2, y + h/2, f"{row['NAME']}",
+            ha="center", va="center", fontsize=9, color="black")
+
+    # Booths (black dots)
+    booths_in_con = df_polling_booths[df_polling_booths["CON_ID"] == row["CON_ID"]]
+    ax.scatter(booths_in_con["LAT"], booths_in_con["LON"], c="black", s=5, alpha=0.8)
+
+ax.set_xlim(0, 100)
+ax.set_ylim(0, 100)
+ax.set_aspect('equal', adjustable='box')
+ax.axis("off")
+plt.savefig("treemap_polling_booth.png", dpi=300, bbox_inches="tight")
+plt.title("Treemap of Constituencies with Polling Booths", fontsize=14, pad=20)
+plt.show()
