@@ -4,7 +4,7 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import squarify
 
-def get_constituencies():
+def get_constituencies(save_csv=True, plot=True):
     constituencies = [
         {"CON_ID": 1, "NAME": "East", "AREA": 350, "POPULATION": 128000},
         {"CON_ID": 2, "NAME": "West", "AREA": 230, "POPULATION": 152000},
@@ -26,23 +26,22 @@ def get_constituencies():
     df_rects = pd.DataFrame(rects).rename(columns={"dx": "WIDTH", "dy": "HEIGHT"})
     df_const = pd.concat([df_const, df_rects[["x", "y", "WIDTH", "HEIGHT"]]], axis=1)
 
-    return df_const
-
-if __name__ == "__main__":
-    df = get_constituencies()
-    df.to_csv("Data\\constituencies.csv", index=False)
+  
+    # Save CSV if requested
+    if save_csv:
+        df_const.to_csv("Data\\constituencies.csv", index=False)
 
     # --- Plot treemap ---
-    
-    norm = mcolors.Normalize(vmin=df["POPULATION"].min(), vmax=df["POPULATION"].max())
-    cmap = cm.Blues
+    if plot:
+        norm = mcolors.Normalize(vmin=df_const["POPULATION"].min(), vmax=df_const["POPULATION"].max())
+        cmap = cm.Blues
 
-    fig, ax = plt.subplots(figsize=(12, 8))
-    for _, row in df.iterrows():
-        x, y, w, h = row["x"], row["y"], row["WIDTH"], row["HEIGHT"]
-        color = cmap(norm(row["POPULATION"]))
-        ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=color))
-        ax.text(x + w/2, y + h/2, row["NAME"], ha="center", va="center", fontsize=9)
+        fig, ax = plt.subplots(figsize=(12, 8))
+        for _, row in df_const.iterrows():
+            x, y, w, h = row["x"], row["y"], row["WIDTH"], row["HEIGHT"]
+            color = cmap(norm(row["POPULATION"]))
+            ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=color))
+            ax.text(x + w/2, y + h/2, row["NAME"], ha="center", va="center", fontsize=9)
 
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 100)
@@ -53,3 +52,9 @@ if __name__ == "__main__":
     plt.show()
 
     print("✅ Constituencies treemap saved.")
+    
+    return df_const
+  
+ # Only runs if you execute this file directly, not when imported   
+if __name__ == "__main__":
+    df = get_constituencies()
