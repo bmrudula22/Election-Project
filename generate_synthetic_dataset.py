@@ -2,6 +2,11 @@ from consituency import get_constituencies
 from voter import generate_voters
 from candidate import generate_candidates
 from Polling_booth import generate_polling_booths
+import numpy as np
+import random
+
+random.seed(42)
+np.random.seed(42)
 
 def main():
     print("🚀 Starting synthetic dataset generation...")
