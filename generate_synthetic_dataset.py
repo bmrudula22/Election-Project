@@ -5,10 +5,11 @@ from Polling_booth import generate_polling_booths
 import numpy as np
 import random
 
-random.seed(42)
-np.random.seed(42)
 
 def main():
+    random.seed(42)
+    np.random.seed(42)
+    
     print("🚀 Starting synthetic dataset generation...")
 
     df_const = get_constituencies()
