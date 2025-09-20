@@ -6,11 +6,10 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 from consituency import get_constituencies
 
-random.seed(42)
-np.random.seed(42)
-
 
 def generate_polling_booths(save_csv=True, plot=True):
+    random.seed(42)
+    np.random.seed(42)
 # Get constituencies with rectangles
     df_constituencies = get_constituencies()
 
