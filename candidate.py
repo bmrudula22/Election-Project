@@ -2,10 +2,11 @@ import pandas as pd
 import numpy as np
 import random
 
-random.seed(42)
-np.random.seed(42)
 
 def generate_candidates(total_candidates=30):
+    random.seed(42)
+    np.random.seed(42)
+    
 # Load voters dataset
     df_voters = pd.read_csv("Data\\voter_table.csv")
 
