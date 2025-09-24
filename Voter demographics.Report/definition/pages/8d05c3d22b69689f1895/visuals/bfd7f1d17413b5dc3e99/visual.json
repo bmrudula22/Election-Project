@@ -1,0 +1,93 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.2.0/schema.json",
+  "name": "bfd7f1d17413b5dc3e99",
+  "position": {
+    "x": 698.458600646577,
+    "y": 465.18166133436074,
+    "z": 14000,
+    "height": 255.23241595336606,
+    "width": 581.8201309904689,
+    "tabOrder": 14000
+  },
+  "visual": {
+    "visualType": "lineStackedColumnComboChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "voter_table"
+                    }
+                  },
+                  "Property": "CON_ID"
+                }
+              },
+              "queryRef": "voter_table.CON_ID",
+              "nativeQueryRef": "CON_ID",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "polling_day"
+                    }
+                  },
+                  "Property": "Turnout %"
+                }
+              },
+              "queryRef": "polling_day.Turnout %",
+              "nativeQueryRef": "Turnout %"
+            }
+          ]
+        },
+        "Y2": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "polling_day"
+                    }
+                  },
+                  "Property": "Turnout Tagert"
+                }
+              },
+              "queryRef": "polling_day.Turnout Tagert",
+              "nativeQueryRef": "Turnout Tagert"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "polling_day"
+                  }
+                },
+                "Property": "Turnout %"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

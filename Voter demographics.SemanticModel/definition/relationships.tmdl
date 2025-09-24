@@ -1,0 +1,10 @@
+relationship AutoDetected_0fdbf841-7397-407c-8442-11808f8af13a
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: polling_day.VOTER_ID
+	toColumn: voter_table.'Voter ID'
+
+relationship d18b30a9-e4b0-0011-86a2-332638a58f18
+	fromColumn: voter_table.CON_ID
+	toColumn: TurnoutTargets.Constituency
+

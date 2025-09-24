@@ -1,0 +1,83 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.2.0/schema.json",
+  "name": "54cb276d0a0f63051008",
+  "position": {
+    "x": 0,
+    "y": 465.18166133436074,
+    "z": 3000,
+    "height": 249.74354679307862,
+    "width": 260.72128511365349,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "voter_table"
+                    }
+                  },
+                  "Property": "CON_ID"
+                }
+              },
+              "queryRef": "CountNonNull(voter_table.CON_ID)",
+              "nativeQueryRef": "CON_ID"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "voter_table"
+                    }
+                  },
+                  "Property": "VoterCount"
+                }
+              },
+              "queryRef": "voter_table.VoterCount",
+              "nativeQueryRef": "VoterCount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "voter_table"
+                    }
+                  },
+                  "Property": "PollingCount"
+                }
+              },
+              "queryRef": "voter_table.PollingCount",
+              "nativeQueryRef": "PollingCount"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "voter_table"
+                  }
+                },
+                "Property": "VoterCount"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

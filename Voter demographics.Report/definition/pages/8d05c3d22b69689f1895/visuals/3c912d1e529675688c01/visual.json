@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.2.0/schema.json",
+  "name": "3c912d1e529675688c01",
+  "position": {
+    "x": 889.44320712694878,
+    "y": 168.19599109131403,
+    "z": 4000,
+    "height": 296.48106904231628,
+    "width": 390.55679287305122,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "treemap",
+    "query": {
+      "queryState": {
+        "Details": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "voter_table"
+                    }
+                  },
+                  "Property": "Gender"
+                }
+              },
+              "queryRef": "voter_table.Gender",
+              "nativeQueryRef": "Gender"
+            }
+          ]
+        },
+        "Group": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "voter_table"
+                    }
+                  },
+                  "Property": "CON_ID"
+                }
+              },
+              "queryRef": "voter_table.CON_ID",
+              "nativeQueryRef": "Count of CON_ID",
+              "active": true
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "voter_table"
+                    }
+                  },
+                  "Property": "VoterCount"
+                }
+              },
+              "queryRef": "voter_table.VoterCount",
+              "nativeQueryRef": "VoterCount"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
