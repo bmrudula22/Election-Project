@@ -2,3 +2,13 @@ __pycache__
 
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
+
+# Ignore Power BI local system folders and files
+*.pbip-data/
+*.pbip-cache/
+*.pbi/
+*.pbip-workspace/
+*/.pbi/
+*/.pbip-data/
+*/.pbip-cache/
+*/.pbip-workspace/
