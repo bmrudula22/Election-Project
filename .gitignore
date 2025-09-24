@@ -1,2 +1,4 @@
 __pycache__
+# Ignore only local settings and cache
+**/.pbi/settings.json
 **/.pbi/cache.abf
