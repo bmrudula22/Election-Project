@@ -63,9 +63,9 @@ git clone https://github.com/bmrudula22/Election-Project.git
 cd Election-Project
 
 ##### 2️⃣ Install Dependencies
-
+```bash
 pip install -r requirements.txt
-
+```
 ##### 3️⃣ Generate Datasets
 
 Run the following scripts:
