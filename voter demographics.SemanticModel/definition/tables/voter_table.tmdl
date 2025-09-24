@@ -1,0 +1,122 @@
+table voter_table
+	lineageTag: 51e6e384-fae3-4a23-911c-ab492bb94d08
+
+	measure VoterCount = COUNT('voter_table'[Voter ID])
+		formatString: 0
+		lineageTag: 9d5f05a8-d4bd-4d9b-b8c2-37b76554c890
+
+	measure PollingCount = DISTINCTCOUNT(voter_table[POLLING_BOOTH_ID])
+		formatString: 0
+		lineageTag: cc5755db-032b-45fd-847b-46f84fc89246
+
+	measure 'Male Voters' = CALCULATE(COUNT('voter_table'[Voter ID]), 'voter_table'[Gender] = "Male")
+		formatString: 0
+		lineageTag: e372abec-374d-4c36-8d75-a88817902a4e
+
+	measure 'Total Voters' = COUNT('voter_table'[Voter ID])
+		formatString: 0
+		lineageTag: 623ba3a4-610e-4016-a02f-796156cdd511
+
+	measure 'Female Voters' = CALCULATE(COUNT('voter_table'[Voter ID]), 'voter_table'[Gender] = "Female")
+		formatString: 0
+		lineageTag: 7b4479c9-829f-4aa6-8a87-9168f59ebe26
+
+	measure 'Total Constituency' = DISTINCTCOUNT('voter_table'[CON_ID])
+		formatString: 0
+		lineageTag: a2ec037c-4dca-45c5-ad1e-214574a435e2
+
+	measure FirstTimeVoters =
+			
+			CALCULATE(
+			    COUNTROWS(voter_table),
+			    voter_table[Age Group] IN {"18–21", "18–25"}
+			)
+		formatString: 0
+		lineageTag: 04df96d0-741d-4ef2-b441-d83bfe08e969
+
+	column CON_ID
+		dataType: int64
+		formatString: 0
+		lineageTag: 68dfb455-6122-42ab-80d0-eb81d074acd1
+		summarizeBy: count
+		sourceColumn: CON_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column POLLING_BOOTH_ID
+		dataType: int64
+		formatString: 0
+		lineageTag: af166a00-5078-4b80-8a80-70eeb65c2d52
+		summarizeBy: count
+		sourceColumn: POLLING_BOOTH_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Voter ID'
+		dataType: string
+		lineageTag: 536dca97-30af-4bea-a85d-bdb84752ba76
+		summarizeBy: none
+		sourceColumn: Voter ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Name
+		dataType: string
+		lineageTag: ca085b6d-c44b-4d44-9733-fbb1f3480615
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gender
+		dataType: string
+		lineageTag: e740dc3b-06e1-474e-8e99-ac8f0f14c734
+		summarizeBy: none
+		sourceColumn: Gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column Age
+		dataType: int64
+		formatString: 0
+		lineageTag: 8091d621-77ce-41ed-b636-d9d1ba1c426f
+		summarizeBy: sum
+		sourceColumn: Age
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Age Group'
+		dataType: string
+		lineageTag: d2314303-e16b-457e-b135-8396fd774eed
+		summarizeBy: none
+		sourceColumn: Age Group
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Voter ID Hierarchy'
+		lineageTag: c65ab375-2bc1-4950-ba21-03a281350f7e
+
+		level 'Voter ID'
+			lineageTag: 2a552869-55f9-4d17-98f2-f7b3064976de
+			column: 'Voter ID'
+
+	partition voter_table = m
+		mode: import
+		source = ```
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\bbmru\OneDrive\Documents\GitHub\Election-Project\Data\voter_table.csv"),[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"CON_ID", Int64.Type}, {"POLLING_BOOTH_ID", Int64.Type}, {"Voter ID", type text}, {"Name", type text}, {"Gender", type text}, {"Age", Int64.Type}}),
+				    #"Added Custom" = Table.AddColumn(#"Changed Type", "Age Group", each if [Age] < 26 then "18-25" 
+				else if [Age] < 36 then "26-35" 
+				else if [Age] < 46 then "36-45" 
+				else if [Age] < 61 then "46-60" 
+				else "60+")
+				in
+				    #"Added Custom"
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
