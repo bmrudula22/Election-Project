@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.2.0/schema.json",
+  "name": "5e96e27c1a1433c4c07e",
+  "position": {
+    "x": 0,
+    "y": 246.9991122129349,
+    "z": 13000,
+    "height": 179.76046499941373,
+    "width": 273.07124072430025,
+    "tabOrder": 13000
+  },
+  "visual": {
+    "visualType": "gauge",
+    "query": {
+      "queryState": {
+        "TargetValue": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "polling_day"
+                    }
+                  },
+                  "Property": "Turnout Tagert"
+                }
+              },
+              "queryRef": "polling_day.Turnout Tagert",
+              "nativeQueryRef": "Turnout Tagert"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "polling_day"
+                    }
+                  },
+                  "Property": "Turnout %"
+                }
+              },
+              "queryRef": "polling_day.Turnout %",
+              "nativeQueryRef": "Turnout %"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "polling_day"
+                  }
+                },
+                "Property": "Turnout %"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,101 @@
+table polling_day
+	lineageTag: dda399c8-c79b-4070-9f42-46cc9eb148c6
+
+	measure 'Turnout %' = ```
+			
+			DIVIDE(
+			    DISTINCTCOUNT(polling_day[VOTER_ID]),
+			    DISTINCTCOUNT(voter_table[Voter ID])
+			) * 100
+			
+			```
+		lineageTag: acccaf15-b1cc-42cd-8623-3a50fd3147d8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Turnout Target' = 75
+		formatString: 0
+		lineageTag: 7d884926-b10d-4856-8ab9-783789c87057
+
+	measure 'Turnout Tagert' = 70
+		formatString: 0
+		lineageTag: aea2f296-d4b7-4e2f-8985-e45e02c93298
+
+	column CON_ID
+		dataType: int64
+		formatString: 0
+		lineageTag: 5aa0be37-9acb-44df-9f21-1752e3ffed48
+		summarizeBy: count
+		sourceColumn: CON_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column POLLING_BOOTH_ID
+		dataType: int64
+		formatString: 0
+		lineageTag: 92f39cd0-ff64-4647-8d4b-9efd4961e88a
+		summarizeBy: count
+		sourceColumn: POLLING_BOOTH_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column VOTER_ID
+		dataType: string
+		lineageTag: a0191024-e903-448d-956a-54d927b75cc3
+		summarizeBy: none
+		sourceColumn: VOTER_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ENTRY_TIME
+		dataType: dateTime
+		formatString: Long Time
+		lineageTag: 89c38ad0-478a-4096-9245-95c2b4d839c5
+		summarizeBy: none
+		sourceColumn: ENTRY_TIME
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Time
+
+	column EXIT_TIME
+		dataType: dateTime
+		formatString: Long Time
+		lineageTag: 6a8f8988-1d4d-43e5-bdae-8e8b4cab5eaa
+		summarizeBy: none
+		sourceColumn: EXIT_TIME
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Time
+
+	column CANDIDATE_VOTED
+		dataType: string
+		lineageTag: fe434e6a-1bb6-4a1c-8465-6f07498fa34d
+		summarizeBy: none
+		sourceColumn: CANDIDATE_VOTED
+
+		annotation SummarizationSetBy = Automatic
+
+	column PARTY_VOTED
+		dataType: string
+		lineageTag: ce820f00-b8a6-4bfd-9bc6-efa9871b599d
+		summarizeBy: none
+		sourceColumn: PARTY_VOTED
+
+		annotation SummarizationSetBy = Automatic
+
+	partition polling_day = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\bbmru\OneDrive\Documents\GitHub\Election-Project\Data\polling_day.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"CON_ID", Int64.Type}, {"POLLING_BOOTH_ID", Int64.Type}, {"VOTER_ID", type text}, {"ENTRY_TIME", type time}, {"EXIT_TIME", type time}, {"CANDIDATE_VOTED", type text}, {"PARTY_VOTED", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

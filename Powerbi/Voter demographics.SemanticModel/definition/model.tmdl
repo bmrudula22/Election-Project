@@ -1,0 +1,20 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-IN
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["voter_table","polling_day"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table voter_table
+ref table polling_day
+ref table TurnoutTargets
+
+ref cultureInfo en-US
+
