@@ -1,0 +1,47 @@
+table TurnoutTargets
+	lineageTag: 48fa9a1c-fa9a-4579-8646-cce8b6408c75
+
+	measure 'Turnout Target %' = MAX(TurnoutTargets[Target])
+		formatString: 0
+		lineageTag: 714e7e59-7352-420a-8a5f-cc6cd1e69f03
+
+	column Constituency
+		lineageTag: 1490fb0b-6218-416d-b888-b5bafc4fa9d9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Constituency]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target
+		formatString: 0
+		lineageTag: 189644fb-ae66-4965-bd46-8911c96ef609
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Target]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition TurnoutTargets = calculated
+		mode: import
+		source = ```
+				
+				DATATABLE(
+				    "Constituency", STRING,
+				    "Target", INTEGER,
+				    {
+				        {"Constituency 1", 75},
+				        {"Constituency 2", 70},
+				        {"Constituency 3", 64},
+				        {"Constituency 4", 75},
+				        {"Constituency 5", 70},
+				        {"Constituency 6", 63},
+				        {"Constituency 7", 70},
+				        {"Constituency 8", 65}
+				    }
+				)
+				
+				```
+
+	annotation PBI_Id = 7f1c049e18a9462ab352e726fde65fff
+

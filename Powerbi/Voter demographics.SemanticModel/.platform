@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Voter demographics"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "e2e6493e-2fa7-4522-89e9-327199553169"
+  }
+}
