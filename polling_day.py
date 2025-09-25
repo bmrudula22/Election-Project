@@ -3,11 +3,16 @@ import random
 from datetime import datetime, timedelta
 import time
 import numpy as np
+import argparse
+import matplotlib.pyplot as plt
 
 
 # Timer Start
 start_time = time.time()
-
+parser = argparse.ArgumentParser(description="Simulate voting day for a given year")
+parser.add_argument('--year', type=int, required=True, help='Election year to simulate')
+args = parser.parse_args()
+year = args.year
 
 class VotingDayRecord:
     random.seed(42)
@@ -149,10 +154,50 @@ for _, voter in df_turnout.iterrows():
 
 #Save final CSV
 df_final = pd.DataFrame(records)
+output_path = f"Data\\polling_day_{year}.csv"
+df_final.to_csv(output_path, index=False)
 
-df_final.to_csv("Data\\polling_day.csv", index=False)
+print(f"✅ Voting polling day events created for {year}!")
+
+# Aggregate vote share for this year
+vote_counts = df_final["PARTY_VOTED"].value_counts(normalize=True) * 100
+vote_summary = vote_counts.reset_index()
+vote_summary.columns = ["Party", "Vote_Share"]
+vote_summary["Year"] = year
+
 print("✅ Voting polling day events created!")
 
+# Append to cumulative vote share file
+summary_path = "Data\\vote_share_by_year.csv"
+try:
+    df_existing = pd.read_csv(summary_path)
+    df_combined = pd.concat([df_existing, vote_summary], ignore_index=True)
+except FileNotFoundError:
+    df_combined = vote_summary
+
+df_combined.to_csv(summary_path, index=False)
+print("📊 Vote share summary updated!")
+
+df = pd.read_csv("Data\\vote_share_by_year.csv")
+parties = sorted(df["Party"].unique())
+years = sorted(df["Year"].unique())
+
+x = np.arange(len(years))  # base x positions for each year
+bar_width = 0.8 / len(parties)  # divide total width among parties
+
+# Plot each party's bars with offset
+for i, party in enumerate(parties):
+    shares = [df[(df["Year"] == y) & (df["Party"] == party)]["Vote_Share"].sum() for y in years]
+    offset = x + i * bar_width
+    plt.bar(offset, shares, width=bar_width, label=party)
+
+plt.xlabel("Election Year")
+plt.ylabel("Vote Share (%)")
+plt.title("Multi-Year Vote Share Trend")
+plt.xticks(x + bar_width * (len(parties) / 2), years)  # center ticks
+plt.legend()
+plt.tight_layout()
+plt.show()
 
 # Timer End
 end_time = time.time()
