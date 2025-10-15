@@ -12,8 +12,7 @@ def generate_candidates(total_candidates=30):
 
 # List of realistic parties
     parties = [
-    "BJP", "INC", "AAP", "TDP", "BRS", "CPI", "CPM", 
-    "YSRCP", "DMK", "SP", "BSP", "JD(U)"
+    'ZAR', 'MEX', 'QOP', 'VUN', 'TIL', 'JAX', 'BIR', 'NOD', 'KEM', 'WUF', 'RYX', 'LAG'
 ]
 
     candidates = []

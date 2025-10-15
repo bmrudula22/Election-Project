@@ -15,8 +15,6 @@ args = parser.parse_args()
 year = args.year
 
 class VotingDayRecord:
-    random.seed(42)
-    np.random.seed(42)
     def __init__(self, con_id, polling_booth_id, voter_id, entry_time, exit_time, candidate_voted, party_voted):
         self.con_id = con_id
         self.polling_booth_id = polling_booth_id
