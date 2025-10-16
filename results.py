@@ -1,11 +1,21 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import argparse
+import os
 
+# Setup argument parser
+parser = argparse.ArgumentParser(description="Election Results Analyzer")
+parser.add_argument("csv_file", help="Path to the polling_day.csv file")
+args = parser.parse_args()
 
-# Load simulated voting results
+# Validate file existence
+if not os.path.exists(args.csv_file):
+    print(f"❌ File not found: {args.csv_file}")
+    exit(1)
 
-votes_df = pd.read_csv("Data\\polling_day.csv")
-
+# Load voting data
+votes_df = pd.read_csv(args.csv_file)
+# Count votes for each candidate in each constituency
 # Find winners per constituency
 # Count votes for each candidate in each constituency
 results = (
@@ -35,7 +45,6 @@ party_wins.plot.pie(autopct="%1.1f%%", startangle=140)
 plt.title("Party-wise Constituency Wins")
 plt.legend(party_wins.index, loc="best")
 plt.ylabel("")
-plt.savefig("party_piecharts.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 # Majority party
