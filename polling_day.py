@@ -1,35 +1,52 @@
 import pandas as pd
 import random
-from datetime import datetime, timedelta
 import time
 import numpy as np
 import argparse
 import matplotlib.pyplot as plt
-from voting_machine import VotingMachine
+from voting_machine import VotingMachine  # Import the VotingMachine class
 
 # Timer Start
 start_time = time.time()
-parser = argparse.ArgumentParser(description="Simulate voting day for a given year")
-parser.add_argument('--year', type=int, required=True, help='Election year to simulate')
+parser = argparse.ArgumentParser(description="Simulate voting day for given year(s)")
+parser.add_argument('--year', type=int, help='Single election year to simulate')
+parser.add_argument('--from_year', type=int, help='Start year for multi-year simulation')
+parser.add_argument('--to_year', type=int, help='End year for multi-year simulation')
 args = parser.parse_args()
-year = args.year
 
-# Load data
+# Determine which years to simulate
+if args.from_year and args.to_year:
+    years = range(args.from_year, args.to_year + 1)
+elif args.year:
+    years = [args.year]
+else:
+    from datetime import datetime
+    years = [datetime.now().year]  # default year if not specified
+
+for year in years:
+    print(f"\n🗳️ Simulating election for year: {year}")
+    
+# Use the election year as a seed so same year always gives same results
+random.seed(year)
+np.random.seed(year)
+
+# Load voter and candidate data
 df_voters = pd.read_csv("Data\\voter_table.csv")
 df_candidates = pd.read_csv("Data\\candidates.csv")
 
-# Setup realism knobs
-parties = sorted(df_candidates["Party_Name"].unique())
+# ---- Election realism knobs ----
+parties = sorted(df_candidates["Party_Name"].unique().tolist())
+
 WAVE_STRENGTH_MIN, WAVE_STRENGTH_MAX = 0.05, 0.50
-wave_party = random.choice(parties)
+wave_party = random.choices(parties)[0]
 wave_strength = random.uniform(WAVE_STRENGTH_MIN, WAVE_STRENGTH_MAX)
 national_wave = {p: (1.0 + wave_strength) if p == wave_party else 1.0 for p in parties}
 
-constituency_ids = sorted(df_candidates["Constituency_ID"].unique())
+constituency_ids = sorted(df_candidates["Constituency_ID"].unique().tolist())
 constituency_tilt = {}
 for cid in constituency_ids:
-    tilt_party = random.choice(parties)
-    tilt_strength = random.choice([random.uniform(0.00, 0.15), random.uniform(0.20, 0.45)])
+    tilt_party = random.choices(parties)
+    tilt_strength = random.choices([random.uniform(0.00, 0.15), random.uniform(0.20, 0.45)])
     constituency_tilt[cid] = (tilt_party, tilt_strength)
 
 candidate_quality = {}
@@ -40,66 +57,58 @@ else:
     for _, r in df_candidates.iterrows():
         candidate_quality[r["Candidate_Name"]] = np.random.lognormal(mean=0.0, sigma=0.20)
 
-# Voting parameters
+# ---- Voting Simulation ----
 turnout_fraction = 0.65
 df_turnout = df_voters.sample(frac=turnout_fraction, random_state=42).reset_index(drop=True)
-poll_start = datetime.strptime("08:00:00", "%H:%M:%S")
-poll_end = datetime.strptime("17:00:00", "%H:%M:%S")
 
-# Count polling booths
-num_polling_booths = df_voters["POLLING_BOOTH_ID"].nunique()
-print(f"🗳️ Simulating {num_polling_booths} voting machines — one per polling booth.")
+# Create one voting machine per polling booth
+polling_booths = df_turnout["POLLING_BOOTH_ID"].unique()
+machines = {
+    pb: VotingMachine(pb, df_candidates, national_wave, constituency_tilt, candidate_quality)
+    for pb in polling_booths
+}
 
-# Initialize machine
-machine = VotingMachine(
-    df_candidates=df_candidates,
-    national_wave=national_wave,
-    constituency_tilt=constituency_tilt,
-    candidate_quality=candidate_quality,
-    poll_start=poll_start,
-    poll_end=poll_end
-)
-
-# Simulate booth-by-booth with delays
 records = []
-grouped = df_turnout.groupby("POLLING_BOOTH_ID")
-for booth_id, voters in grouped:
-    booth_delay = timedelta(minutes=random.randint(0, 15))
-    for _, voter in voters.iterrows():
-        record = machine.simulate_vote(voter, booth_delay=booth_delay)
-        records.append(record)
 
-# Save polling day results
+# Each voter uses the machine assigned to their polling booth
+for _, voter in df_turnout.iterrows():
+    machine = machines[voter["POLLING_BOOTH_ID"]]
+    record = machine.cast_vote(voter)
+    records.append(record.to_dict())
+
+# Save final CSV
 df_final = pd.DataFrame(records)
 output_path = f"Data\\polling_day_{year}.csv"
 df_final.to_csv(output_path, index=False)
 print(f"✅ Voting polling day events created for {year}!")
 
-# Vote share summary
+# Aggregate vote share for this year
 vote_counts = df_final["PARTY_VOTED"].value_counts(normalize=True) * 100
 vote_summary = vote_counts.reset_index()
 vote_summary.columns = ["Party", "Vote_Share"]
 vote_summary["Year"] = year
 
 summary_path = "Data\\vote_share_by_year.csv"
+
 try:
     df_existing = pd.read_csv(summary_path)
-    if year in df_existing["Year"].values:
-        print(f"⚠️ Vote share for {year} already exists. Skipping append.")
-        df_combined = df_existing
-    else:
-        df_combined = pd.concat([df_existing, vote_summary], ignore_index=True)
-        df_combined.to_csv(summary_path, index=False)
-        print("📊 Vote share summary updated!")
+    df_existing = df_existing[df_existing["Year"] != year]
+    df_combined = pd.concat([df_existing, vote_summary], ignore_index=True)
 except FileNotFoundError:
     df_combined = vote_summary
-    df_combined.to_csv(summary_path, index=False)
-    print("📊 Vote share summary created!")
 
-# Plot vote share trend
+df_combined.to_csv(summary_path, index=False)
+print("📊 Vote share summary updated!")
+
+
+df_combined.to_csv(summary_path, index=False)
+print("📊 Vote share summary updated!")
+
+# ---- Plot Multi-Year Vote Share ----
 df = pd.read_csv("Data\\vote_share_by_year.csv")
 parties = sorted(df["Party"].unique())
 years = sorted(df["Year"].unique())
+
 x = np.arange(len(years))
 bar_width = 0.8 / len(parties)
 
@@ -116,7 +125,9 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-# Final stats
+# Timer End
 end_time = time.time()
-print(f"🧮 Total votes cast: {machine.vote_count}")
-print(f"⏱️ Execution Time: {end_time - start_time:.2f} seconds")
+execution_time = end_time - start_time
+
+print("Voting polling day events created with class-based structure!")
+print(f"Execution Time: {execution_time:.4f} seconds")
