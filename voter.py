@@ -9,7 +9,7 @@ np.random.seed(42)
 
 def generate_voters():
 # Read the voters dataset which has DOB
-    df_voters = pd.read_csv("Data\\Voter_Card.csv")
+    df_voters = pd.read_csv("Data\\voter_card.csv")
 
 # Ensure DOB is in datetime format
     df_voters['DOB'] = pd.to_datetime(df_voters['DOB'], errors='coerce')
