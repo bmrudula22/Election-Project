@@ -5,7 +5,7 @@ import os
 
 # Setup argument parser
 parser = argparse.ArgumentParser(description="Election Results Analyzer")
-parser.add_argument("csv_file", help="Path to the polling_day.csv file")
+parser.add_argument("csv_file", help="Path to the Data/polling_day.csv file")
 args = parser.parse_args()
 
 # Validate file existence
