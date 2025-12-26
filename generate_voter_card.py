@@ -53,7 +53,7 @@ def create_voter_card(voter_id, name, father, gender, dob, output="voter_card.pd
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python voter_card_generation.py <VoterID>")
+        print("Usage: python generat_voter_card.py <VoterID>")
         sys.exit(1)
 
     voter_id_input = sys.argv[1]  # Voter ID from command line
