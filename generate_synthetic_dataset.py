@@ -1,5 +1,5 @@
 from consituency import get_constituencies   
-from voter import generate_voters
+from voter import generate_voter_details, assign_polling_booths
 from candidate import generate_candidates
 from Polling_booth import generate_polling_booths
 import numpy as np
@@ -13,7 +13,7 @@ def main():
     print("🚀 Starting synthetic dataset generation...")
 
     df_const = get_constituencies()
-    df_voters = generate_voters()
+    df_voters = generate_voter_details(), assign_polling_booths()
     df_candidates = generate_candidates()
     df_booths = generate_polling_booths()
 

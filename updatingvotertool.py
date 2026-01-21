@@ -3,7 +3,7 @@ import re
 import os
 
 # CSV file path
-csv_path = "Data\\Voter_Card.csv"
+csv_path = "Data\\voter_card.csv"
 
 # Ensure CSV exists with correct headers
 if not os.path.exists(csv_path):
